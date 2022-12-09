@@ -1,0 +1,36 @@
+---
+title: "Présentation des premiers résultats de l'étude DV long"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include = FALSE}
+library("here")
+source(here("code", "R", "packages.R"))
+source(here("code", "R", "functions_data.R"))
+source(here("code", "R", "functions_analyse.R"))
+source(here("code", "R", "functions_visualization.R"))
+source(here("code", "R", "data_generation.R"))
+```
+
+```{r environment_set_up, include=FALSE}
+# Préparation de l'environnement
+tar_visnetwork(targets_only = TRUE)
+```
+
+```{r}
+tar_make()
+```
+
+
+```{r}
+(table1 <- tar_read(table1))
+(table_care <- tar_read(table_care))
+(table_fdr_esca <- tar_read(table_fdr_pi))
+(boxplot_3vent_params <- tar_read(boxplot_3vent_params))
+```

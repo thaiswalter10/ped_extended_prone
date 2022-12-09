@@ -1,0 +1,102 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
+add_nip|function|fa0dea558a4fd24e|||||||||||||||
+boxplot_3vent_params|stem|006a42259263b8bb|55648ac46b698a7e|23b1d0c53df8f3d2|-1859570519||t19335.9114954542s|8f4dd54a87e0417a|575948|rds|local|vector|||0.369|1m22mThe size argument of element_line is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.. 1m22mRemoved 78 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 78 rows containing nonfinite values stat_summary.. 1m22mRemoved 78 rows containing nonfinite values stat_summary.. 1m22mRemoved 78 rows containing nonfinite values stat_signif.. 1m22mRemoved 3 rows containing missing values geom_signif.. 1m22mRemoved 21 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 21 rows containing nonfinite values stat_summary.. 1m22mRemoved 21 rows containing nonfinite values stat_summary.. 1m22mRemoved 21 rows containing nonfinite values stat_signif.. 1m22mRemoved 21 rows containing nonfinite values stat_signif.. 1m22mRemoved 3 rows containing missing values geom_signif.. 1m22mRemoved 3 rows containing missing values geom_signif.|
+calc_age|function|b8a9b019a5916848|||||||||||||||
+check_miss_dat|function|c58e2ec589abebf5|||||||||||||||
+compute_interqt|function|c8aa379d610ce88e|||||||||||||||
+compute_odd_ratio_pval1|function|9009d78530ea3274|||||||||||||||
+compute_odd_ratio_pval3|function|57046c8e04810a2d|||||||||||||||
+count_na|function|05b65a8e9d3e3060|||||||||||||||
+cpl_plot|stem|9f51ebcc836fe690|93016132ae73222f|8009923c32114c73|1186375561||t19333.7646547349s|41e85da7efe56ae2|246388|rds|local|vector|||0.101|1m22mRemoved 168 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 168 rows containing nonfinite values stat_summary.. 1m22mRemoved 168 rows containing nonfinite values stat_summary.. 1m22mRemoved 168 rows containing nonfinite values stat_signif.|
+create_df_to_plot_vent_var|function|20e92cb98684c049|||||||||||||||
+demog|stem|052286d92e7486b7|fe6af4d289d2355f|81a0f598bedec037|-762039974||t19335.9114830159s|45e09e0627a10b1c|3413|rds|local|vector|||0.173|1m22mThere were 81 warnings in mutate.The first warning was1m22m36mℹ39m In argument pressure_injuries  recodepressure_injuries, oui  1, non   0.36mℹ39m In group 1 gupi  2.Caused by warning in recode.numeric33m39m NAs introduits lors de la conversion automatique1m22m36mℹ39m Run dplyrlast_dplyr_warnings to see the 80 remaining warnings.|
+demog_file|stem|5b89491e866f617e|c95033d82e215203|4e3739ef91745af0|821119725|/Users/utilisateur/onedrive-univ-pd/pedagogical_projects/pedagogical_extended_prone/random_data/random_demog.xlsx|t19335.9113848567s|f448728f68844397|11722|file|local|vector|||0.001||
+desc_continuous_var|function|6aa8263ead218d09|||||||||||||||
+descB|function|97240c859cfaa7a0|||||||||||||||
+descQ|function|d8538b43e37f68d5|||||||||||||||
+details_exclus|stem|63548fadc07c146f|feedbd603f68a3b9|8058f526beb13c38|-1375854233||t19333.7646338072s|60cf4163658a3202|243|rds|local|vector|||0.007||
+details_non_inclus|stem|9c19052f3a9eddda|6b2c8ef3b050d6c9|05d11248774d283e|-147584767||t19333.7646340773s|9208ff4405c91373|218|rds|local|vector|||0.005||
+df_1col_time_point|stem|0cf548f8c0a58ada|fe5e8aa707731300|537152405e502f33|1767555919||t19333.7646495063s|937e0dfb80ffe38c|27405|rds|local|vector|||0.353||
+df_to_plot_vent_var|stem|27327a67b4c65dd7|8434f37858ac4b85|a6c66f91860cf544|-342354418||t19335.9114886008s|0e76e73c13ff7e07|11276|rds|local|vector|||0.189|1m22mUsing all_of outside of a selecting function was deprecated in tidyselect1.2.0.36mℹ39m See details at  httpstidyselect.rlib.orgreferencefaqselectioncontext.html|
+do_descriptive_table|function|c49ea7819462c8d9|||||||||||||||
+do_details_exclus|function|96c8e25d769960f8|||||||||||||||
+do_details_non_inclus|function|8ad3023a6d8cfc0e|||||||||||||||
+do_df_1col_time_point|function|fcf60b557fe69473|||||||||||||||
+do_dv_with_periods_of_alternating_pp_sp_pp|function|7da0c9a63c7a86ad|||||||||||||||
+do_esca_loc|function|8f2f52093d20e953|||||||||||||||
+do_evol_vent_df|function|6fe018fdc43feff9|||||||||||||||
+do_evol_vent_fig|function|05f8e0ae08cf86f4|||||||||||||||
+do_fdr_table|function|6729c30084664cbe|||||||||||||||
+do_fdr_table_mep|function|476b532a6745a003|||||||||||||||
+do_final_demog|function|ee4a4dacc6127816|||||||||||||||
+do_final_dv|function|646f9a65916b1d24|||||||||||||||
+do_final_esca|function|e5e4c39cc1437fc9|||||||||||||||
+do_final_pp|function|3d81bf4b7a41fe06|||||||||||||||
+do_flow_chart|function|1a6ced518bb5f5d5|||||||||||||||
+do_reason_reversal|function|b4af481f286a3286|||||||||||||||
+do_table_vent_params|function|6a2b479454ffd485|||||||||||||||
+do_table_vent_params_1st_pp|function|663c6ccd23b9dae6|||||||||||||||
+do_table_vent_params_raw|function|7934e729d70effb5|||||||||||||||
+do_table1|function|c49ea7819462c8d9|||||||||||||||
+do_var_vent_param_supine|function|321af0f0d85ac9f8|||||||||||||||
+drvp_plot|stem|2b0df777810091e2|4137992a6524ad6e|dc0dc9c360fa3e38|1750588571||t19333.7646526312s|79ac9c36c1d8a2a6|238380|rds|local|vector|||0.164|1m22mThe size argument of element_line is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.. 1m22mRemoved 131 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 131 rows containing nonfinite values stat_summary.. 1m22mRemoved 131 rows containing nonfinite values stat_summary.. 1m22mRemoved 131 rows containing nonfinite values stat_signif.|
+dv|stem|f3cdd3295baee211|83276e3c7a832faf|497f33f47d05a21b|1024624953||t19334.8618407086s|ecc54ee5e506f652|26805|rds|local|vector|||0.009||
+dv_file|stem|16a06b390e4e7d63|2fd62402f9595520|4e3739ef91745af0|1597878053|/Users/utilisateur/onedrive-univ-pd/pedagogical_projects/pedagogical_extended_prone/random_data/20221208_dv.xlsx|t19334.8617783911s|6d56dbd45a8d1617|55775|file|local|vector|||0||
+dv_with_periods_of_alternating_pp_sp_pp|stem|a8403986989d5ce5|1738ba7065a5eefd|8d02b60a44abe41b|-2115727156||t19333.7646417994s|086a6b307c36cfa7|3802|rds|local|vector|||0.194||
+esca_df|stem|7b1a975e9a8974a6|fce02b22c0e9e589|8051f369084a7d6c|-49132472||t19333.7646391799s|57e1d1c97dc9f954|977|rds|local|vector|||0.003||
+esca_file|stem|5186816fbc508355|ff7b20f521850014|4e3739ef91745af0|92015535|/Users/utilisateur/onedrive-univ-pd/pedagogical_projects/pedagogical_extended_prone/random_data/20221208_escarres.xlsx|t19334.8304796082s|aeaa52e5d84d7397|10517|file|local|vector|||0.001||
+excluded_patients|stem|fedd2677f983df8e|08f9d20f76a7eaa7|2979f5d917b2806b|-833856715||t19335.9114809758s|7b2710506856f90a|1478|rds|local|vector|||0.002||
+explore_class|function|92f1ba768115a121|||||||||||||||
+extract_named_vector|function|b9c6521ed93183a4|||||||||||||||
+extract_named_vector_binq|function|2867a51b92477487|||||||||||||||
+find_gupi_with_dv_without_esca|function|675f8ccc1ac075a3|||||||||||||||
+flow_chart|stem|1c6a83bc47697af0|ec2acbc309891ac7|24eca9acf51495fd|-559541605||t19333.7646340003s|eaf4be1ffe060f33|217|rds|local|vector|||0.014||
+getp|function|148d12e8a49470c0|||||||||||||||
+gupi_with_dv_without_esca|stem|c1136870dc0afbe1|ea2d5d7446d82b64|ab4b499aaaa7c429|-757529535||t19333.7646495964s|4956b68a23f9e1fc|122|rds|local|vector|||0.002||
+info_table1|stem|3cf6d194fe7d66ab|1d6ccaed22272138|1198cc06871689b4|921243566||t19334.8906042147s|accaf1da60116829|1169|rds|local|vector|||0.005||
+info_table1_file|stem|f10425584a76092c|5a9e8c92815d7408|4e3739ef91745af0|501872013|/Users/utilisateur/onedrive-univ-pd/pedagogical_projects/pedagogical_extended_prone/random_data/list_data_table1.xlsx|t19334.890355453s|989a7a91ad7c03fb|10944|file|local|vector|||0.001||
+make_single_var_df|function|8ed0cebae60e021a|||||||||||||||
+perc_na|stem|29c30d8c9db1418e|133795015d73e593|eba6d9a9e95ed167|1139217514||t19333.7646649326s|3359bf05477e5075|269|rds|local|vector|||0.003||
+pf_plot|stem|e165434290287382|879d4207c9893255|40cb8d1bb01e8441|-1739494188||t19333.7646568159s|02538330740b3833|252472|rds|local|vector|||0.095|1m22mRemoved 92 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 92 rows containing nonfinite values stat_summary.. 1m22mRemoved 92 rows containing nonfinite values stat_summary.. 1m22mRemoved 92 rows containing nonfinite values stat_signif.. 1m22mRemoved 92 rows containing nonfinite values stat_signif.|
+plot_3_var|function|70d7e1a3b942ef70|||||||||||||||
+plot_cpl|function|7d5edb1a4f2aede9|||||||||||||||
+plot_drvp|function|fb0dc748992548f3|||||||||||||||
+plot_pf|function|5c8f53b7ec6f76c9|||||||||||||||
+plot_vent_var|function|13bd4ca17bc0ea48|||||||||||||||
+pp|stem|13eb95f69a1d0fe9|5ea39787ed704df4|339aafcaf149ed5e|1904173238||t19335.9114840296s|73dfc234c286cf4e|26056|rds|local|vector|||0.009||
+pp_file|stem|55adb4c42e2738b2|9a918cba3e2ebe20|4e3739ef91745af0|-1689258647|/Users/utilisateur/onedrive-univ-pd/pedagogical_projects/pedagogical_extended_prone/random_data/random_prone_positioning.xlsx|t19335.9113850196s|014d12cfba9afd16|37697|file|local|vector|||0.001||
+pp_sessions_immediately_followed_by_another_one|stem|797357cdfa1bec53|7d82d0fded2c1bc2|5d4e4fc04297d518|-417869555||t19333.7646449359s|bc1a383cca21b1b7|15423|rds|local|vector|||0.086||
+pressure_injuries_file|stem|aec90cd67d16be4a|a1e6518440719381|4e3739ef91745af0|-723733638|/Users/utilisateur/onedrive-univ-pd/pedagogical_projects/pedagogical_extended_prone/random_data/random_pressure_injuries.xlsx|t19335.9113848907s|4dc2ee065dd9f34f|6362|file|local|vector|||0.001||
+raw_demog|stem|785e2c688af30125|970de81c50d1da35|5ac221e3d30dff37|-1647571723||t19335.9114800852s|ab906fcf86417838|3302|rds|local|vector|||0.051||
+raw_dv|stem|3d06800a174930bc|33529810568be051|67f2662e7ed630e5|-1170265802||t19334.8618377479s|b8e36aca63d1355e|26903|rds|local|vector|||0.139||
+raw_esca_df|stem|8adb27abffe391bb|2629685cd624c8df|cb4cb392e6cbe48d|447130193||t19334.8309804023s|0d280a2fc3631f0a|663|rds|local|vector|||0.008||
+raw_pi_df|stem|38cf26485335c7bb|362c81186df27093|20a0d08a81690afe|549386256||t19335.911480159s|a1796479d644fa59|472|rds|local|vector|||0.002||
+raw_pp|stem|215fdd2cb02dcc0d|5305e23bb27884d8|bd88cfb3ab99c464|-950890238||t19335.9114809219s|da2f7f0c15a2e9b6|25874|rds|local|vector|||0.06|type_convert only converts columns of type character. df has no columns of type character|
+round_pvalue|function|dbb3e0cd1df447bd|||||||||||||||
+select_subset_of_pp_sessions_immediately_followed_by_another_pp_session|function|8db7ef1bc43f68d3|||||||||||||||
+summarise_demog|function|46a99776773ea93f|||||||||||||||
+table_care|stem|39e108846001fc4d|a932b593f1f7742d|11bdb90ddff050a1|-1451506872||t19335.9114843345s|f7f8608a8895099d|463|rds|local|vector|||0.024||
+table_evol_vent_params|stem|1edd8a9ad935fe7a|45348c5ea04511be|5bd0b8125630a9fd|-714192396||t19333.7646694666s|0c06bd7502b40ecf|769|rds|local|vector|||0.284|Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.. Data frame tidiers are deprecated and will be removed in an upcoming release of broom.|
+table_evol_vent_params_1st_pp|stem|00b32f80a8f920e9|8319a456a246d2f5|7540ec73933f4f62|648964535||t19333.7646661468s|f280657c007a11c4|759|rds|local|vector|||0.102|impossible de calculer la pvalue exacte avec des exaequos. impossible de calculer une pvalue exacte avec des zéros|
+table_evol_vent_params_supine|stem|af6e761deb221c20|e2c1176e2bbeb4c2|73eed337a8fe755b|-1822762546||t19333.7646633571s|225002ec50985cb1|561|rds|local|vector|||0.04||
+table_fdr_esca|stem|902e19993971ce27|34b5ea46332a58ec|5a1239d0b78bf129|1880325001||t19334.8681382984s|c8cda3a0d78c66fb|406|rds|local|vector|||0.171|1m22mThe x argument of as_tibble.matrix must have unique column names if.name_repair is omitted as of tibble 2.0.0.36mℹ39m Using compatibility .name_repair.|
+table_fdr_pi|stem|3e4fcf208858ef6d|34b5ea46332a58ec|a4587c73fd9ad5de|570673564||t19335.911486302s|9ea571d1cd313787|411|rds|local|vector|||0.167|1m22mThe x argument of as_tibble.matrix must have unique column names if.name_repair is omitted as of tibble 2.0.0.36mℹ39m Using compatibility .name_repair.|
+table_localisation|stem|bb064b4b83affe45|b0ffe915fb04dc0a|9e7fe5d66fc25c88|-1576179788||t19333.7646498277s|2458b4e1b2ff5935|371|rds|local|vector|||0.018||
+table_pec|stem|38315f701af3dadb|77b7a51dadf6b79e|c84a99958977dfa7|-1670132303||t19334.8681360774s|37a8c0c37516ca30|459|rds|local|vector|||0.024||
+table_turnaround_reasons|stem|1af327feaab847ad|ef0d48f9edaeef3f|9f71ab1e5096354a|1860321355||t19333.7646452892s|4f479f57c0215211|401|rds|local|vector|||0.027||
+table_vent_params_raw|stem|dbd3ed25b2afdb57|7faee90ed97f7cd1|b41b6de4c7430136|281884519||t19333.7646648668s|9824f8db58d58430|554|rds|local|vector|||0.056||
+table_vent_params_raw_1st_pp|stem|36ccc634ae3409fd|7330eaf1d1dfae22|b41b6de4c7430136|-1314274402||t19333.7646641942s|b694c8343349aca9|550|rds|local|vector|||0.069||
+table1|stem|521f9b2f914e879a|2438645fc165b24e|ae1833fa9c79b793|1895650088||t19335.9114863503s|a0252f4d8dc0f410|403|rds|local|vector|||0.001||
+table1_excluded_patients|stem|8c60d581c0413f71|89e362de63854365|d1d15405595fae7e|-454787727||t19335.9114835043s|c300aeef4648a6fd|342|rds|local|vector|||0.038||
+table1_final_cohort|stem|d8fc00dd70389db7|caf2f5cd3d002684|11bdb90ddff050a1|763694845||t19335.9114838567s|16c4820798935f49|337|rds|local|vector|||0.028||
+upload_demog|function|c7199c9801b42fc8|||||||||||||||
+upload_dv|function|3f6b1f515dacc9de|||||||||||||||
+upload_ecdc|function|dc5f43e3d0d82471|||||||||||||||
+upload_esca|function|30383d28a69053f0|||||||||||||||
+upload_icu|function|98603c1b03bc1c68|||||||||||||||
+upload_pi|function|a70828334a007157|||||||||||||||
+upload_pp|function|adbcf431659df014|||||||||||||||
+vect_lme|function|50a9e4d5d91e8b6d|||||||||||||||
+vect_wilcox|function|10a8face1b0d184c|||||||||||||||
+vent_var_list|stem|052a2383e072eff2|208e0c0ff544c240|a3dad144c40657ed|-1108874054||t19333.7646314259s|4ff05336d644dae2|106|rds|local|vector|||0||
+x_label|stem|6b7c6c56913c99cd|411d8a7a05afa6ee|a4a2cc80c116533c|781796666||t19334.8906040837s|a72b4e607ecebf44|222|rds|local|vector|||0.001||

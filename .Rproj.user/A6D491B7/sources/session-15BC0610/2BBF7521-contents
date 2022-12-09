@@ -1,0 +1,93 @@
+library(targets)
+options(tidyverse.quiet = TRUE)
+tar_option_set(packages = c("readxl", "tidyverse", "readr", "hms", "cowplot", "ggsignif"))
+
+library(here)
+source(here("code", "R", "packages.R"))
+source(here("code", "R", "20221208_functions_data.R"))
+source(here("code", "R", "functions_analyse.R"))
+source(here("code", "R", "functions_visualization.R"))
+
+list(
+  tar_target(pressure_injuries_file, 
+             here("random_data", "random_pressure_injuries.xlsx"), 
+             format = "file"
+             ), 
+  tar_target(raw_pi_df, 
+             upload_pi(pressure_injuries_file)
+             ),
+  tar_target(demog_file, 
+             here("random_data", "random_demog.xlsx"),
+             format = "file"
+             ),
+  tar_target(raw_demog, 
+             upload_demog(demog_file)
+             ),
+  tar_target(pp_file,
+             here("random_data", "random_prone_positioning.xlsx"),
+             format = "file"
+             ),
+  tar_target(raw_pp,
+             upload_pp(pp_file, raw_demog = raw_demog)
+             ),
+  tar_target(info_table1_file,
+             here("random_data", "list_data_table1.xlsx"),
+             format = "file"
+             ),
+  tar_target(info_table1,
+             read_xlsx(info_table1_file)
+             ),
+  tar_target(demog,
+            do_final_demog(raw_demog, raw_pi_df, raw_pp)
+            ),
+  tar_target(excluded_patients, 
+             raw_demog %>% filter(included == 0)
+            ),
+  tar_target(table1_excluded_patients,
+             do_descriptive_table(
+               df_to_summarise = excluded_patients, 
+               df_of_vars = info_table1, 
+               table_name = "table1", 
+               col1_name = "Baseline Characteristics",
+               col2_name = str_glue("Excluded patients (n = {dim(excluded_patients)[1]})"))
+             ),
+  tar_target(table1_final_cohort,
+             do_descriptive_table(
+               df_to_summarise = demog, 
+               df_of_vars = info_table1, 
+               table_name = "table1", 
+               col1_name = "Baseline Characteristics",
+               col2_name = str_glue("Final cohort (n = {dim(demog)[1]})"))
+              ),
+  tar_target(table1,
+             table1_final_cohort %>% left_join(table1_excluded_patients, by = "Baseline Characteristics")
+             ),
+  tar_target(table_care, 
+             do_descriptive_table(
+               df_to_summarise = demog,
+               df_of_vars = info_table1,
+               table_name = "care",
+               col1_name = "Variables",
+               col2_name = str_glue("All Patients (n = {dim(demog)[1]})"))
+             ),
+  tar_target(table_fdr_pi,
+             do_fdr_table_mep(info_table1, demog)
+             ),
+  tar_target(pp,
+             do_final_pp(demog, raw_pp)
+             ),
+ tar_target(x_label,
+            tribble(
+              ~given_time_point, ~x_label,
+              "bfr_pp",    "Baseline",
+              "drg_pp",    "Prone, H+16",
+              "bfr_sp",    "End of Prone",
+              "aft_sp",    "Supine")
+            ),
+ tar_target(df_to_plot_vent_var,
+            create_df_to_plot_vent_var(df = pp, funct = make_single_var_df, label = x_label)
+            ),
+ tar_target(boxplot_3vent_params,
+            plot_3_var(df_to_plot_vent_var)
+            )
+)

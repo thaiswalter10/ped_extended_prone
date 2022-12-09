@@ -1,0 +1,194 @@
+upload_esca <- function(file_path){
+  esca_df <- read_xlsx(file_path) %>% 
+    rename(
+      escarre = Escarre,
+      localisation = Localisation,
+      autre_loc = "Localisation si autre",
+      stade = Stade, 
+      soins_locaux = "Soins locaux", 
+      notes = "Notes / autres")
+}
+
+upload_demog <- function(file_path){
+  demog <- read_excel(file_path, na = c("", "NA")) 
+  demog <- demog  %>%
+    replace_na(list(raison_non_inclu = "inclu_si_retrouve")) %>%
+    mutate(
+      sexe = recode(sexe, "M"=1, "F"=0),
+      across (
+        c(taille, 
+          poids, 
+          igsII, 
+          `Date de sortie`, 
+          `date IOT`,
+          `date extubation`,
+          date_arrivee_rea,
+          `trachéotomie de sevrage`,
+          `si trachéotomie: date de déventilation`,
+          toxico_actif,
+          cirrhose,
+          bpco,
+          asthme,
+          dt2,
+          dt1,
+          cardiop_isch,
+          insuff_card_chro,
+          cancer_actif_solide,
+          hemopathie_maligne,
+          insuff_resp_chro,
+          grossesse,
+          chimio,
+          aomi,
+          saos,
+          insuf_ren_chro,
+          cortico_au_lg_crt),
+        as.numeric)
+    ) %>%
+    mutate(across(c(deces_hospitalisation, plexus_brachial), ~case_when(
+      .x == "1"~TRUE, 
+      .x == "0"~FALSE, 
+      TRUE ~ NA))) %>%
+    mutate(deces_hospitalisation = case_when(
+      deces_en_rea == 1 ~ TRUE,
+      TRUE ~ deces_hospitalisation)
+    ) %>%
+    mutate(
+      imc = poids / taille^2*10000,
+      pbw = case_when(
+        sexe == 1 ~ 50 + (0.91 * (taille-152.4)),
+        sexe == 0 ~ 45.5 + (0.91 * (taille-152.4))),
+      DSRea = `Date de sortie` - date_arrivee_rea,
+      tbnon = ifelse(tbc=="0", 1, 0),
+      tbactif = ifelse(tbc=="1", 1, 0),
+      tbsevré = ifelse(tbc=="sevré", 1, 0),
+      finVM = pmax(demog$"si trachéotomie: date de déventilation", demog$"date extubation", na.rm=T),
+      atcd_card = case_when(
+        insuff_card_chro == 1 |
+          cardiop_isch == 1 |
+          aomi == 1 ~ 1,
+        TRUE ~ 0),
+      atcd_respi = case_when(
+        bpco == 1 |
+          asthme == 1 |
+          insuff_resp_chro == 1 |
+          patho_respi_autre == 1 ~ 1,
+        TRUE ~ 0)
+    ) %>%
+    mutate(finVM = case_when(finVM == 0 | is.na(finVM) ~ `Date de sortie`)) %>%
+    mutate(dureeVM = finVM - `date IOT`) %>%
+    mutate(`Date de sortie`= as.POSIXct(`Date de sortie` * (60*60*24), origin="1899-12-30", tz="GMT"),
+           date_arrivee_rea = as.POSIXct(date_arrivee_rea * (60*60*24), origin="1899-12-30", tz="GMT"))
+  return(demog)
+}
+
+upload_dv <- function(file_path, raw_demog = raw_demog){
+  raw_dv <- read_xlsx(file_path)
+  raw_dv <- raw_dv %>%
+    filter(!is.na(gupi)) %>%
+    mutate(duree_dv = date_heure_fin_dv - date_heure_debut_dv)
+  raw_dv <- type_convert(raw_dv)
+  raw_dv <- raw_dv %>%  
+    mutate(pao2_fio2_avt_dv = pao2_avt_dv/fio2_avt_dv *100,
+           pao2_fio2_pdt_dv = pao2_pdt_dv/fio2_pdt_dv *100,
+           pao2_fio2_avt_dd = pao2_avt_dd/fio2_avt_dd *100,
+           pao2_fio2_apr_dd = pao2_apr_dd/fio2_apr_dd *100,
+# je garde la variable pao2_fio2 pour jimmy, j'en crée une autre pf pour 
+# qu'elle soit simple à parser
+          pf_avt_dv = pao2_avt_dv/fio2_avt_dv *100,
+          pf_pdt_dv = pao2_pdt_dv/fio2_pdt_dv *100,
+          pf_avt_dd = pao2_avt_dd/fio2_avt_dd *100,
+          pf_apr_dd = pao2_apr_dd/fio2_apr_dd *100,
+          drvp_avt_dv = pplt_avt_dv-pep_avt_dv,
+          drvp_pdt_dv = pplt_pdt_dv-pep_pdt_dv,
+          drvp_avt_dd = pplt_avt_dd-pep_avt_dd,
+          drvp_apr_dd = pplt_apr_dd-pep_apr_dd) %>%
+    mutate(cpl_avt_dv = vt_avt_dv / drvp_avt_dv,
+           cpl_pdt_dv = vt_pdt_dv / drvp_pdt_dv,
+           cpl_avt_dd = vt_avt_dd / drvp_avt_dd,
+           cpl_apr_dd = vt_apr_dd / drvp_apr_dd) %>%
+    left_join(raw_demog %>% select(gupi, pbw), by = "gupi") %>%
+    mutate(vtpbw_avt_dv = vt_avt_dv / pbw,
+           vtpbw_pdt_dv = vt_pdt_dv / pbw,
+           vtpbw_avt_dd = vt_avt_dd / pbw,
+           vtpbw_apr_dd = vt_apr_dd / pbw)
+}
+
+do_final_demog <- function(raw_demog, raw_esca_df, raw_dv) {
+  # Sélection des patients inclus et non exclus
+  demog <- raw_demog %>% 
+    filter(inclus == 1)
+  
+  
+  # Preprocessing des informations sur les escarres
+  # esca vaut 1 si le patient a eu au moins 1 escarre 0 sinon
+  esca <- raw_esca_df %>%
+    group_by(gupi)%>%
+    distinct(escarre) %>%
+    filter(gupi %in% demog$gupi) %>%
+    mutate(escarre= recode(escarre, "oui" = 1, "non" = 0))
+  # stade vaut 1 si le patient a eu au moins un escarre stade III/IV, 0 si au moins 1 escarre stade I/II, NA sinon
+  stade <- raw_esca_df %>% 
+    group_by(gupi) %>% 
+    distinct(stade) %>% 
+    mutate(stade = case_when(
+      stade == "I / II" ~ 0,
+      stade == "III / IV" ~ 1,
+      TRUE ~ 0)) %>%
+    arrange(desc(stade)) %>%
+    filter(row_number()==1) %>%
+    filter(gupi %in% demog$gupi)
+  
+  # Preprocessing des informations sur les DVs
+  sum_up_dv <- raw_dv %>% 
+    group_by(gupi) %>%
+    summarise(nbDV=n(), 
+              dureeMDV = mean(duree_dv),
+              duree_tot_dv = sum(duree_dv))
+  gupi_with_amines <- raw_dv %>% 
+    group_by(gupi) %>% 
+    filter(cathecolamines == 1) %>% 
+    distinct(gupi) %>% pull
+  dv1_params <- raw_dv %>% 
+    filter(numero_seance_dv == 1) %>% 
+    select(gupi, 
+           ends_with("avt_dv") & 
+           starts_with(c("pao2_fio", "pep", "drvp", "cpl")))
+  
+  # Demog Final
+  demog <- demog %>% 
+    left_join(esca, by = "gupi") %>% 
+    left_join(stade, by = "gupi") %>%
+    left_join(sum_up_dv, by = "gupi") %>%
+    left_join(dv1_params, by = "gupi") %>%
+    mutate(aminesDV = ifelse(gupi %in% gupi_with_amines, 1, 0),
+           curarized = 1)
+}
+
+do_final_dv <- function(demog, raw_dv){
+  demog_death <- demog %>% select(gupi, deces_en_rea)
+  final_dv = raw_dv %>% filter(gupi %in% demog$gupi) %>%
+    mutate(heure_fin_dv = format(date_heure_fin_dv, "%H:%M:%S")) %>%
+    mutate(heure_fin_dv = as_hms(heure_fin_dv)) %>%
+    mutate(heure_debut_dv = format(date_heure_debut_dv, "%H:%M:%S")) %>%
+    mutate(heure_debut_dv = as_hms(heure_debut_dv)) %>%
+    # suppression de mb18 séance n° 2, car la durée rapportée du dv est de
+    # et son dossier a été perdu entre temps, je en peux donc pas revérifier 
+    # cette information qui est probablement fausse. 
+    filter(!(gupi == "mb18" & numero_seance_dv == 2)) %>%
+    left_join(demog_death, by = "gupi") %>%
+    mutate(o2_responder = (pf_pdt_dv - pf_avt_dv) > 20)
+}
+
+check_miss_dat <- function(demog){
+  demog %>% summarise(across(
+    c(gupi,
+    age,
+    sexe,
+    date_arrivee_rea,
+    "Date de sortie",
+    poids,
+    taille,
+    "date IOT",
+    "date extubation",
+    igsII), ~sum(is.na(.))))
+}

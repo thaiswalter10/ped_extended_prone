@@ -10,7 +10,7 @@ extract_named_vector_binq <- function(df, type_of_value, table_name){
   named_list <- unnamed_list %>% setNames(names)
 }
 
-# Descriptives statistics
+# Descriptive statistics
 descB <- function(x){
   if(sum(is.na(x))>0) print(paste("Attention, ",sum(is.na(x))," données manquantes, pour la variable",sep=""))
   a0 = paste(sum(x,na.rm=T)," (",sprintf("%.0f",100*mean(x,na.rm=T)),")",sep="")
@@ -32,14 +32,14 @@ summarise_demog <- function(df, named_list_var, desc_fun, col1_name, col2_name){
 }
 
 do_descriptive_table <- function(df_to_summarise, df_of_vars, table_name, col1_name, col2_name){
-  # Statistiques descriptives pour les variables binaires
+  # Descriptive statistics for binary variables
   bin_var <- extract_named_vector_binq(df = df_of_vars, type_of_value = "bin", table_name= table_name)
   bin_demog <- summarise_demog(df = df_to_summarise, 
                                named_list_var = bin_var, 
                                desc_fun = descB, 
                                col1_name = col1_name, 
                                col2_name = col2_name)
-  # Statistiques descriptives pour les variables en quartiles
+  # Descriptive statistics for continuous, non gaussian, variables
   q_var <- extract_named_vector_binq(df = df_of_vars, type_of_value = "q", table_name = table_name)
   q_demog <- summarise_demog(df = df_to_summarise, 
                              named_list_var = q_var, 
@@ -49,7 +49,7 @@ do_descriptive_table <- function(df_to_summarise, df_of_vars, table_name, col1_n
   table1 <- q_demog %>% add_row(bin_demog)
 }
 
-# Odd Ratio risque escarres
+# Odd Ratio of pressure injuries
 compute_odd_ratio_pval1 <- function(var, outcome_to_study, df){
     formula = as.formula(paste(outcome_to_study , var, sep="~"))
     mod = glm(formula,family="binomial",df)
@@ -76,13 +76,13 @@ compute_odd_ratio_pval3 <- function(var, outcome_to_study, df){
   c( paste(or," (",ci,")",sep=""),pval)
 }
 
-do_fdr_table <- function(stat_fun, list_var_df, col_name, what_these_var_are, outcome_to_study, df){
-  list_var_df <- list_var_df %>% filter(table2 == "fdr")
+do_risk_factors_table <- function(stat_fun, list_var_df, col_name, what_these_var_are, outcome_to_study, df){
+  list_var_df <- list_var_df %>% filter(table2 == "risk_factor")
   list_var <- list_var_df %>% pull(var_name) %>% setNames(list_var_df$print_out_name)
   
-  # Calcule l'odd ratio + la p value pour chacune de ces variables sauf duree_tot_vent
+  # Compute the odd ratio + the p value for each f the variables listed in list_var_df: 
   res <- sapply(list_var, stat_fun, outcome_to_study=outcome_to_study, df = df)
-  # Met en page le résultat
+  # Results layout
   table <- res %>%
     t() %>%
     as_tibble %>%
@@ -92,18 +92,18 @@ do_fdr_table <- function(stat_fun, list_var_df, col_name, what_these_var_are, ou
     relocate(Variables)
 }
 
-do_fdr_table_mep <- function(info_table1, demog){
-  table1 <- do_fdr_table(stat_fun = compute_odd_ratio_pval1,
+do_risk_factors_table_mep <- function(info_table1, demog){
+  table1 <- do_risk_factors_table(stat_fun = compute_odd_ratio_pval1,
                list_var_df = info_table1,
                col_name = table2,
-               what_these_var_are = "fdr",
-               outcome_to_study = "escarre", 
+               what_these_var_are = "risk_factor",
+               outcome_to_study = "pressure_injuries", 
                df = demog)
- table3 <-  do_fdr_table(stat_fun = compute_odd_ratio_pval3,
+ table3 <-  do_risk_factors_table(stat_fun = compute_odd_ratio_pval3,
                          list_var_df = info_table1,
                          col_name = table2,
-                         what_these_var_are = "fdr",
-                         outcome_to_study = "escarre", 
+                         what_these_var_are = "risk_factor",
+                         outcome_to_study = "pressure_injuries", 
                          df = demog)
  table <- table1 %>% 
    filter(!Variables %in% c("Added duration of all proning sessions", "ICU length of stay")) %>% 
@@ -128,13 +128,13 @@ vect_lme <- function (df_time_point_as_col, var){
 }
 
 do_df_1col_time_point <- function (df = dv, key_names_df = info_table1){
-  # Création d'une liste contenant le nom des variables à étudier
+  # Creation of list with variables to study. 
   list_var <- key_names_df %>% 
     filter(table == "vent_row" & !var_name %in% c("vtpbw", "ph")) %>% 
     pull(var_name)
   list_time_point <- key_names_df %>% filter(table == "vent_col") %>% pull(var_name)
   
-  # On reformate le tibble dv 
+  # reformating of the tibble containing data on prone positioning sessions.  
   df_1col_time_point <- map_dfr(
     c(list_var, "ph", "vtpbw"), 
     make_single_var_df, df, 

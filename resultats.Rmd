@@ -1,5 +1,5 @@
 ---
-title: "Présentation des premiers résultats de l'étude DV long"
+title: "Results of the extended prone study, with mocked data"
 output:
   pdf_document: default
   html_notebook: default
@@ -31,6 +31,6 @@ tar_make()
 ```{r}
 (table1 <- tar_read(table1))
 (table_care <- tar_read(table_care))
-(table_fdr_esca <- tar_read(table_fdr_pi))
+(table_risk_factors_pressure_injuries <- tar_read(table_risk_factors_pi))
 (boxplot_3vent_params <- tar_read(boxplot_3vent_params))
 ```

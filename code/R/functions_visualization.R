@@ -1,10 +1,10 @@
-# Prend un type de variable en entrée (pao2, fio2 ...)
-# Réarrange le df "dv" en 5 colonnes:
-#"gupi", "numero_seance_dv", "name_var", "time_point" et "value"
-# le df en output ne contient que le type de variable donnée en entrée
+# Take one variable as input (eg: pao2, fio2 ...)
+# Rearrange datafram in 5 colomns:
+#"gupi", "pp_session_number", "name_var", "time_point" and "value"
+# the output data frame contains only the variable which was given as input. 
 make_single_var_df <- function(variable, dat, list_time_points){
   list_var <- map(list_time_points, ~str_c(variable, all_of(.x), sep  = "_")) %>% unlist
-  list_df <- map(list_var, ~select(dat, all_of(.x), gupi, numero_seance_dv))
+  list_df <- map(list_var, ~select(dat, all_of(.x), gupi, pp_session_number))
   i = 1
   for (df in list_df){
     list_df[[i]] = df %>% 
@@ -16,14 +16,11 @@ make_single_var_df <- function(variable, dat, list_time_points){
   reduce(list_df, add_row)
 }
 
-# Pour une liste de variable donnée, 
-# applique make_single_var_df pour chaque variable puis ajoute toutes les lignes 
-# entre elle. Output = un seul df 
+# For a given variable list, 
+# apply make_single_var_df to each variable, then add up all lines. 
+# The output is a single dataframe. 
 create_df_to_plot_vent_var <- function(df = dv, funct = make_single_var_df, label = x_label){
-  list_var_to_plot <- c("fio2", "pplt", "pf", "drvp", "cpl")
-  # Pour une liste de variable donnée, 
-  # applique make_single_var_df pour chaque variable puis ajoute toutes les lignes 
-  # entre elle. Output = un seul df 
+  list_var_to_plot <- c("fio2", "pltp", "pf", "drvp", "cpl")
   level_key <- label %>% pull(x_label) %>% setNames(label$given_time_point)
   df_to_plot_vent_var <- map_dfr(list_var_to_plot, funct, df, label$given_time_point) %>% 
     as_tibble %>%

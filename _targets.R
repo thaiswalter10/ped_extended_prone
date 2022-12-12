@@ -4,7 +4,7 @@ tar_option_set(packages = c("readxl", "tidyverse", "readr", "hms", "cowplot", "g
 
 library(here)
 source(here("code", "R", "packages.R"))
-source(here("code", "R", "20221208_functions_data.R"))
+source(here("code", "R", "functions_data.R"))
 source(here("code", "R", "functions_analyse.R"))
 source(here("code", "R", "functions_visualization.R"))
 
@@ -70,8 +70,8 @@ list(
                col1_name = "Variables",
                col2_name = str_glue("All Patients (n = {dim(demog)[1]})"))
              ),
-  tar_target(table_fdr_pi,
-             do_fdr_table_mep(info_table1, demog)
+  tar_target(table_risk_factors_pi,
+             do_risk_factors_table_mep(info_table1, demog)
              ),
   tar_target(pp,
              do_final_pp(demog, raw_pp)

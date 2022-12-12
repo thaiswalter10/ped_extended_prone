@@ -66,19 +66,19 @@ upload_pp <- function(file_path, raw_demog = raw_demog){
 }
 
 do_final_demog <- function(raw_demog, raw_pi_df, raw_pp) {
-  # Sélection des patients inclus et non exclus
+  # Selection of patients included
   demog <- raw_demog %>% 
     filter(included == 1)
   
-  # Preprocessing des informations sur les escarres
-  # esca vaut 1 si le patient a eu au moins 1 pressure_injuries 0 sinon
+  # Preprocessing of pressure injuries related information
+  # pi stands for pressure injuries and is equal to 1 if the patient has had at 
+  # least one pressure injury during his / here stay, 0 otherwise
   pi <- raw_pi_df %>%
     group_by(gupi)%>%
     distinct(pressure_injuries) %>%
-    filter(gupi %in% demog$gupi) %>%
-    mutate(pressure_injuries= recode(pressure_injuries, "oui" = 1, "non" = 0))
+    filter(gupi %in% demog$gupi) 
   
-  # Preprocessing des informations sur les DVs
+  # Preprocessing of prone positionning related information. 
   sum_up_pp <- raw_pp %>% 
     group_by(gupi) %>%
     summarise(nbpp=n())
@@ -104,10 +104,6 @@ do_final_demog <- function(raw_demog, raw_pi_df, raw_pp) {
 do_final_pp <- function(demog, raw_pp){
   demog_death <- demog %>% select(gupi, icu_mortality)
   final_pp = raw_pp %>% filter(gupi %in% demog$gupi) %>%
-    # suppression de mb18 séance n° 2, car la durée rapportée du dv est de
-    # et son dossier a été perdu entre temps, je en peux donc pas revérifier 
-    # cette information qui est probablement fausse. 
-    filter(!(gupi == "mb18" & pp_session_number == 2)) %>%
     left_join(demog_death, by = "gupi") %>%
     mutate(o2_responder = (pf_drg_pp - pf_bfr_pp) > 20)
 }

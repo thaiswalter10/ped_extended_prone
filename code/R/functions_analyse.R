@@ -97,13 +97,13 @@ do_fdr_table_mep <- function(info_table1, demog){
                list_var_df = info_table1,
                col_name = table2,
                what_these_var_are = "fdr",
-               outcome_to_study = "pressure_injuries", 
+               outcome_to_study = "escarre", 
                df = demog)
  table3 <-  do_fdr_table(stat_fun = compute_odd_ratio_pval3,
                          list_var_df = info_table1,
                          col_name = table2,
                          what_these_var_are = "fdr",
-                         outcome_to_study = "pressure_injuries", 
+                         outcome_to_study = "escarre", 
                          df = demog)
  table <- table1 %>% 
    filter(!Variables %in% c("Added duration of all proning sessions", "ICU length of stay")) %>% 
@@ -127,7 +127,7 @@ vect_lme <- function (df_time_point_as_col, var){
     pivot_wider(names_from = column, values_from = mean)
 }
 
-do_df_1col_time_point <- function (df = pp, key_names_df = info_table1){
+do_df_1col_time_point <- function (df = dv, key_names_df = info_table1){
   # Création d'une liste contenant le nom des variables à étudier
   list_var <- key_names_df %>% 
     filter(table == "vent_row" & !var_name %in% c("vtpbw", "ph")) %>% 

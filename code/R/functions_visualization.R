@@ -1,5 +1,5 @@
 # Take one variable as input (eg: pao2, fio2 ...)
-# Rearrange datafram in 5 colomns:
+# Rearrange dataframe in 5 colomns:
 #"gupi", "pp_session_number", "name_var", "time_point" and "value"
 # the output data frame contains only the variable which was given as input. 
 make_single_var_df <- function(variable, dat, list_time_points){

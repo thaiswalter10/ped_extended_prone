@@ -1,0 +1,8 @@
+"0","library(""here"")"
+"2","here() starts at /Users/utilisateur/onedrive-univ-pd/pedagogical_extended_prone
+"
+"0","source(here(""code"", ""R"", ""packages.R""))"
+"0","source(here(""code"", ""R"", ""functions_data.R""))"
+"0","source(here(""code"", ""R"", ""functions_analyse.R""))"
+"0","source(here(""code"", ""R"", ""functions_visualization.R""))"
+"0","source(here(""code"", ""R"", ""data_generation.R""))"

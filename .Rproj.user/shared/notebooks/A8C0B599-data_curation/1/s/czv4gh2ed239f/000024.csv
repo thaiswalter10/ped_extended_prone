@@ -1,0 +1,4 @@
+"0","number_of_variable_with_missing_values <- demog %>% "
+"0","  summarise(across(everything(), ~sum(is.na(.x)))) %>%"
+"0","  filter(across(everything(), ~.x!=0)) %>%"
+"0","  dim()"

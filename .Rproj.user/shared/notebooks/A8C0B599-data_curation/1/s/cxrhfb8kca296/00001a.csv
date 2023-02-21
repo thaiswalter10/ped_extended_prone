@@ -1,0 +1,5 @@
+"0","ggplot(demog, aes(x=bmi)) +"
+"0","  stat_ecdf() +"
+"0","  xlab(""BMI in kg/m^2"") +"
+"0","  ylab(""percentage"") +"
+"0","  ggtitle(""Empirical cumulative distribution function of the BMI variable"")"

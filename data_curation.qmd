@@ -1,0 +1,57 @@
+---
+title: "Data curation"
+format: pdf
+editor: visual
+---
+
+## Data curation file for the pedagogical extended prone project
+
+In this file you will find an example of how to curate your data, i.e. how to upload your raw file, process it so it is usable and evaluate the quality of the data set and the possible presence of outliers.
+
+First let's upload our toolbox: the packages and the different handmade functions for curating the data.
+
+```{r}
+library(here)
+source(here("code", "R", "packages.R"))
+source(here("code", "R", "functions_data.R"))
+```
+
+Let's upload the data:
+
+```{r}
+demog <- upload_demog(here("random_data", "random_demog.xlsx"))
+```
+
+```{r}
+demog
+```
+
+
+What are the different columns of my table ?
+
+```{r}
+names(demog)
+```
+
+Are there any missing values ?
+
+```{r}
+number_of_variable_with_missing_values <- demog %>% 
+  summarise(across(everything(), ~sum(is.na(.x)))) %>%
+  filter(across(everything(), ~.x!=0)) %>%
+  dim()
+```
+
+`r number_of_variable_with_missing_values[1]` variables have missing values in the demog data frame.
+
+Let's evaluate the bmi column:
+
+```{r}
+ggplot(demog, aes(x=bmi)) +
+  stat_ecdf() +
+  xlab("BMI in kg/m^2") +
+  ylab("percentage") +
+  ggtitle("Empirical cumulative distribution function of the BMI variable")
+```
+
+## 

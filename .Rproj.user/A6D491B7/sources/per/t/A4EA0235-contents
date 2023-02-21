@@ -1,0 +1,673 @@
+---
+title: "Treatment curation"
+format: 
+  html:
+   page-layout: full
+editor: visual
+echo : FALSE
+warning: FALSE
+message: FALSE
+---
+
+```{r}
+library(here)
+source(here("code", "R", "packages.R"))
+source(here("code", "R", "functions.R"))
+source(here("code", "R", "func_results.R"))
+source(here("code", "R", "preprocessing_parameters.R"))
+
+moni_df<- read_ext_file(site, 
+                        current_step = "", 
+                        suppres_vaso = suppres_vaso,
+                        down_sampled, 
+                        ext = ext, 
+                        raw_data = "TRUE")
+print(glue("We have uploaded the monitoring data file the site:{site}"))
+```
+
+# Innsbruck
+
+## Norepinephrine
+
+Here is what the norepinephrine file looks like:
+
+```{r}
+nad_df_raw <- read_sav(here("data", "ibk", "Noradrenalin_spss.sav"))
+paged_table(nad_df_raw)
+```
+
+### Different drug label
+
+Here are the three drugs that are present in the norepinephrine file:
+
+```{r}
+attributes(nad_df_raw[[2]])$labels
+```
+
+Here is the occurence of each of these labels:
+
+```{r}
+nad_df_raw %>% 
+  count(PharmaID)
+```
+
+So we see that Arterenol drug only account for `r (61+543)/24527*100`% of all occurences. I am currently asking Verena Rass to see whether Arterenol is actually given to patients.
+
+I am asking Verena Rass whether arterenol are just
+
+### Overall distribution
+
+Exploring norepinephrine distribution with a boxplot:
+
+```{r}
+ggplot(nad_df_raw, aes(y=Rate_ml_h)) +
+  geom_boxplot()
+```
+
+As we can see there is one outlier which will be suppressed.
+
+Exploring norepinephrine distribution with the eCDF and after suppression of the outlier:
+
+```{r}
+nad_df <- nad_df_raw %>%
+  filter(Rate_ml_h < 1000)
+ggplot(nad_df, aes(x=Rate_ml_h)) +
+  stat_ecdf()
+```
+
+### Doubled entry
+
+I expect that each tuple "PatientID" + "DateTime" will be unique in the tibble. Let's check this.
+
+```{r}
+paged_table(nad_df %>% 
+  count(PatientID, DateTime) %>% 
+  count(n) %>% 
+  relocate(nn, .before = n) %>%
+  rename(
+    number_of_time_a_tuple_is_repeated = n, 
+    nb_of_concerned_tuples = nn))
+```
+
+What are the repeated tuples:
+
+```{r}
+paged_table(nad_df %>% group_by(PatientID, DateTime) %>% filter(n()>1))
+```
+
+It seems that whenever a tuple is repeated, one of the reported rate of infusion is 0. Let's veryify this:
+
+```{r}
+paged_table(nad_df %>% 
+              group_by(PatientID, DateTime) %>% 
+              filter(n()>1) %>%
+              filter(Rate_ml_h != 0) %>%
+              filter(n()>1) %>% 
+              arrange(DateTime))
+```
+
+It is probably a double manual enter. We will only keep the last entered value.
+
+```{r}
+nad_df <- nad_df %>% 
+  arrange(EnterTime) %>%
+  distinct(PatientID, DateTime, .keep_all = TRUE)
+
+```
+
+What is the median duration between two doses updates?
+
+```{r}
+paged_table(nad_df %>% 
+              arrange(PatientID, DateTime) %>% 
+              group_by(PatientID) %>% 
+              mutate(diff_ts = (lead(DateTime)-DateTime)/60) %>% 
+              summarise(median_in_mins = median(diff_ts, na.rm = TRUE)) %>% 
+              summarise(median_in_mins = median(median_in_mins, na.rm=TRUE))
+            )
+```
+
+Are all timestamps of the treatement tibble contained within the timestamps of the monitoring tibble ?
+
+```{r}
+moni_df <- read_feather(here("data", "pbto2_ibk_HF.arrow"))
+ibk_gupi <- moni_df %>% pull(gupi)
+ibk_nad_gupi <- nad_df %>% pull(PatientID)
+patient_in_ttt_df_not_in_moni_df <- dim(nad_df %>% filter(!(PatientID %in% ibk_gupi)))[1]
+patient_in_moni_df_not_in_ttt_df <- dim(moni_df %>% filter(!(gupi %in% ibk_nad_gupi)) %>% distinct(gupi))[1]
+```
+
+Nbr of patients who are present in the norepinephrine data base but not in the monitoring database: `r patient_in_ttt_df_not_in_moni_df` Nbr of patients who are present in the monitoring data base but not in the norepinephrine database: `r patient_in_moni_df_not_in_ttt_df` Those `r patient_in_moni_df_not_in_ttt_df` patients probably didn't require the use of norepinephrine.
+
+### Evolution of norepinephrine prescription
+
+Let's look at the evolution of the norepinephrine prescription of the course of the stay of a single patient:
+
+```{r}
+nad_df %>% filter(PatientID == 7726) %>%
+  ggplot(aes(x=DateTime, y = Rate_ml_h)) +
+  geom_point()
+```
+
+Histogram of timestamps per one year
+
+```{r}
+hist_per_yr <- function(df, variable, year_low, year_high){
+  df %>%
+    filter(DateTime > ymd(year_low, truncated = 2L) & DateTime < ymd(year_high, truncated = 2L)) %>%
+    ggplot(aes(x=DateTime)) +
+          geom_histogram() +
+          facet_wrap(~PatientID, scales = 'free') +
+          labs(title = glue("Repartition of {variable} timestamps between {year_low} and {year_high}, per patient"))
+}
+
+hist_per_yr(nad_df, "norepinephrine", 2012, 2013)
+```
+
+```{r}
+hist_per_yr(nad_df, "norepinephrine", 2013, 2014)
+```
+
+```{r}
+hist_per_yr(nad_df, "norepinephrine", 2014, 2015)
+```
+
+**Warning:** There are two aberrant values for patient "21176". Those values are going to be suppressed.
+
+```{r}
+hist_per_yr(nad_df, "norepinephrine", 2015, 2016)
+```
+
+```{r}
+hist_per_yr(nad_df, "norepinephrine", 2016, 2017)
+```
+
+## Midazolam
+
+Here is the midazolam tibble
+
+```{r}
+mid_df_raw <- read_sav(here("data", "ibk", "Midazolam_spss.sav"))
+paged_table(mid_df_raw)
+```
+
+It doesn't contain a PharmaID column. There must thus be only midazolam doses contained in this tibble.
+
+Exploring midazolam distribution with a boxplot:
+
+```{r}
+ggplot(mid_df_raw, aes(y=Rate_ml_h)) +
+  geom_boxplot()
+mid_df <- mid_df_raw %>% 
+  filter(Rate_ml_h < 450)
+```
+
+There are three outliers which are going to be suppressed.
+
+Exploring midazolam distribution with the eCDF and after suppression of the outliers:
+
+```{r}
+ggplot(mid_df, aes(x=Rate_ml_h)) +
+  stat_ecdf()
+```
+
+Checking whether there are duplicated values
+
+```{r}
+paged_table(mid_df %>% 
+  count(PatientID, DateTime) %>% 
+  count(n) %>% 
+  relocate(nn, .before = n) %>%
+  rename(
+    number_of_time_a_tuple_is_repeated = n, 
+    nb_of_concerned_tuples = nn))
+```
+
+What are the repeated tuples:
+
+```{r}
+paged_table(mid_df %>% group_by(PatientID, DateTime) %>% filter(n()>1))
+```
+
+It is probably a double manual enter. We will only keep the last entered value.
+
+```{r}
+mid_df <- mid_df %>% 
+  arrange(desc(EnterTime)) %>%
+  distinct(PatientID, DateTime, .keep_all = TRUE)
+```
+
+Are all timestamps of the treatement tibble contained within the timestamps of the monitoring tibble ?
+
+```{r}
+ibk_gupi <- moni_df %>% pull(gupi)
+ibk_ttt_gupi <- mid_df %>% pull(PatientID)
+patient_in_ttt_df_not_in_moni_df <- dim(mid_df %>% filter(!(PatientID %in% ibk_gupi)))[1]
+patient_in_moni_df_not_in_ttt_df <- dim(moni_df %>% filter(!(gupi %in% ibk_ttt_gupi)) %>% distinct(gupi))[1]
+```
+
+Nbr of patients who are present in the norepinephrine data base but not in the monitoring database: `r patient_in_ttt_df_not_in_moni_df` Nbr of patients who are present in the monitoring data base but not in the norepinephrine database: `r patient_in_moni_df_not_in_ttt_df` Given the severity of these SAH patients (monitored by Pbto2), probably all of them required mechanical ventilation and required thus at some points to be put under midazolam which is the main sedative drug in Innsbruck.
+
+Histogram of timestamps per one year
+
+```{r}
+hist_per_yr(mid_df, "midazolam", 2012, 2013)
+```
+
+```{r}
+hist_per_yr(mid_df, "midazolam", 2013, 2014)
+```
+
+```{r}
+hist_per_yr(mid_df, "midazolam", 2014, 2015)
+```
+
+```{r}
+hist_per_yr(mid_df, "midazolam", 2015, 2016)
+```
+
+```{r}
+hist_per_yr(mid_df, "midazolam", 2016, 2017)
+```
+
+## Propofol
+
+Here are the different drugs present in the propofol tibble:
+
+```{r}
+prop_df_raw <- read_sav(here("data", "ibk", "Propopfol_spss.sav"))
+attributes(prop_df_raw[[2]])$labels
+```
+
+The propofol is given in two different concentrations: 1% and 2%.
+
+Here is the occurence of each of these concentrations
+
+```{r}
+prop_df_raw %>% 
+  count(PharmaID)
+```
+
+`r 44/(986+44)*100`% of the time under propofol, patients seem to receive propofol diluted to 2%.
+
+Exploring propofol distribution with a boxplot:
+
+```{r}
+ggplot(prop_df_raw, aes(y=Rate_ml_h)) +
+  geom_boxplot()
+prop_df <- prop_df_raw %>% 
+  filter(Rate_ml_h < 1000)
+```
+
+There is one outlier which is going to be suppressed.
+
+Exploring propofol distribution with the eCDF and after suppression of the outlier:
+
+```{r}
+ggplot(prop_df, aes(x=Rate_ml_h)) +
+  stat_ecdf()
+```
+
+There are very few values different values.
+
+Checking whether there are duplicated values
+
+```{r}
+paged_table(prop_df %>% 
+  count(PatientID, DateTime) %>% 
+  count(n) %>% 
+  relocate(nn, .before = n) %>%
+  rename(
+    number_of_time_a_tuple_is_repeated = n, 
+    nb_of_concerned_tuples = nn))
+```
+
+What are the repeated tuples:
+
+```{r}
+paged_table(prop_df %>% group_by(PatientID, DateTime) %>% filter(n()>1))
+```
+
+It is probably a double manual enter. We will only keep the last entered value.
+
+```{r}
+prop_df <- prop_df %>% 
+  arrange(desc(EnterTime)) %>%
+  distinct(PatientID, DateTime, .keep_all = TRUE)
+```
+
+Histogram of timestamps
+
+```{r}
+hist_per_yr(prop_df, "propofol", 2012, 2015)
+```
+
+```{r}
+hist_per_yr(prop_df, "propofol", 2015, 2016)
+```
+
+```{r}
+hist_per_yr(prop_df, "propofol", 2016, 2018)
+```
+
+As we don't read the labels on the x-axis well enough, let's check the minimum and maximum value of the DateTime variable for patient "27919".
+
+```{r}
+prop_df %>% filter(PatientID == 27919) %>% summarize(min_datetime = min(DateTime),
+                                                     max_datetime = max(DateTime))
+```
+
+Overall, propofol was rarely given in the Innsbruck cohort.
+
+## Ketamine
+
+Here is the ketamine tibble:
+
+```{r}
+ket_df_raw <- read_sav(here("data", "ibk", "Ketanest_spss.sav"))
+```
+
+There are no PharmaID column.
+
+Exploring ketamine distribution with a boxplot:
+
+```{r}
+
+ggplot(ket_df_raw, aes(y=Rate_ml_h)) +
+  geom_boxplot()
+```
+
+As we can see there is two outliers which will be suppressed.
+
+Exploring ketamine distribution with the eCDF and after suppression of the outlier:
+
+```{r}
+ket_df <- ket_df_raw %>%
+  filter(Rate_ml_h < 1000)
+ggplot(ket_df, aes(x=Rate_ml_h)) +
+  stat_ecdf()
+```
+
+Checking whether there are duplicated values
+
+```{r}
+paged_table(ket_df %>% 
+  count(PatientID, DateTime) %>% 
+  count(n) %>% 
+  relocate(nn, .before = n) %>%
+  rename(
+    number_of_time_a_tuple_is_repeated = n, 
+    nb_of_concerned_tuples = nn))
+```
+
+What are the repeated tuples:
+
+```{r}
+paged_table(ket_df %>% group_by(PatientID, DateTime) %>% filter(n()>1))
+```
+
+It is probably a double manual enter. We will only keep the last entered value.
+
+```{r}
+ket_df <- ket_df %>% 
+  arrange(desc(EnterTime)) %>%
+  distinct(PatientID, DateTime, .keep_all = TRUE)
+```
+
+Histogram of timestamps per one year
+
+```{r}
+hist_per_yr(ket_df, "ketamine", 2012, 2014)
+```
+
+```{r}
+hist_per_yr(ket_df, "ketamine", 2014, 2015)
+```
+
+```{r}
+hist_per_yr(nad_df, "ketamine", 2015, 2016)
+```
+
+**Warning:** There are two aberrant values for patient "21176". Those values are going to be suppressed.
+
+```{r}
+hist_per_yr(nad_df, "ketamine", 2015, 2016)
+```
+
+```{r}
+hist_per_yr(nad_df, "ketamine", 2016, 2017)
+```
+
+## Sufentanil
+
+Here are the different drugs present in the sufentanil tibble:
+
+```{r}
+suf_df_raw <- read_sav(here("data", "ibk", "Sufentanil_spss.sav"))
+attributes(suf_df_raw[[2]])$labels
+```
+
+As note: 2mg/40mL is the same concentration, `r 2/40`mg/mL than 50µ/mL.
+
+Here is the occurence of each of these concentrations
+
+```{r}
+paged_table(suf_df_raw %>% 
+  count(PharmaID))
+```
+
+The lable 1932 "PERF ME" has an anecdotical occurence. We will considered it diluted like the other labels at a concentration of 50 µg/mL. Exploring sufentanil distribution with a boxplot:
+
+```{r}
+ggplot(suf_df_raw, aes(y=Rate_ml_h)) +
+  geom_boxplot()
+suf_df <- suf_df_raw %>% 
+  filter(Rate_ml_h < 1000)
+```
+
+There is one outlier which is going to be suppressed.
+
+Exploring sufentanil distribution with the eCDF and after suppression of the outlier:
+
+```{r}
+ggplot(suf_df, aes(x=Rate_ml_h)) +
+  stat_ecdf()
+```
+
+Checking whether there are duplicated values
+
+```{r}
+paged_table(suf_df %>% 
+  count(PatientID, DateTime) %>% 
+  count(n) %>% 
+  relocate(nn, .before = n) %>%
+  rename(
+    number_of_time_a_tuple_is_repeated = n, 
+    nb_of_concerned_tuples = nn))
+```
+
+What are the repeated tuples:
+
+```{r}
+paged_table(suf_df %>% group_by(PatientID, DateTime) %>% filter(n()>1))
+```
+
+It is probably a double manual enter. We will only keep the last entered value.
+
+```{r}
+suf_df <- suf_df %>% 
+  arrange(desc(EnterTime)) %>%
+  distinct(PatientID, DateTime, .keep_all = TRUE)
+```
+
+Histogram of timestamps
+
+```{r}
+hist_per_yr(suf_df, "sufentanil", 2012, 2014)
+```
+
+```{r}
+hist_per_yr(suf_df, "sufentanil", 2014, 2015)
+```
+
+```{r}
+hist_per_yr(suf_df, "sufentanil", 2015, 2016)
+```
+
+```{r}
+hist_per_yr(suf_df, "sufentanil", 2016, 2017)
+```
+
+## Nimodipine
+
+Here are the different drugs present in the nimodipine tibble:
+
+```{r}
+nim_df_raw <- read_sav(here("data", "ibk", "Nimodipine_spss.sav"))
+attributes(nim_df_raw[[2]])$labels
+```
+
+Information: Nimotop IFL 10mg corresponds to an ampoule of 5mL and thus to a concentration of 2mg/mL.
+
+Here is the occurence of each of these doses
+
+```{r}
+nim_df_raw %>% 
+  count(PharmaID)
+```
+
+Here are the different administration Route in the nimodipine tibble:
+
+```{r}
+attributes(nim_df_raw[[8]])$labels
+```
+
+Here are the occurence of the different administration routes:
+
+```{r}
+nim_df_raw %>% 
+  count(Route)
+```
+
+In `r 32771/(32771+702)` nimodipine is given with an IV route.
+
+Exploring nimodipine distribution with a boxplot:
+
+```{r}
+nim_df_raw <- read_sav(here("data", "ibk", "Nimodipine_spss.sav"))
+ggplot(nim_df_raw, aes(y=Rate_ml_h)) +
+  geom_boxplot()
+nim_df <- nim_df_raw %>% 
+  filter(Rate_ml_h < 50)
+```
+
+There is one outlier which is going to be suppressed.
+
+Exploring nimodipine distribution with the eCDF and after suppression of the outlier:
+
+```{r}
+ggplot(nim_df, aes(x=Rate_ml_h)) +
+  stat_ecdf()
+```
+
+Checking whether there are duplicated values
+
+```{r}
+paged_table(nim_df %>% 
+  count(PatientID, DateTime) %>% 
+  count(n) %>% 
+  relocate(nn, .before = n) %>%
+  rename(
+    number_of_time_a_tuple_is_repeated = n, 
+    nb_of_concerned_tuples = nn))
+```
+
+What are the repeated tuples:
+
+```{r}
+paged_table(nim_df %>% group_by(PatientID, DateTime) %>% filter(n()>1) %>% arrange (EnterTime))
+```
+
+It is probably a double manual enter. We will only keep the last entered value.
+
+```{r}
+nim_df <- nim_df %>% 
+  arrange(desc(EnterTime)) %>%
+  distinct(PatientID, DateTime, .keep_all = TRUE)
+```
+
+Nimodipine is given at fixed dose of 0, 5, 10, 15 or 20 mL/h.
+
+```{r}
+hist_per_yr(nim_df, "nimodipine", 2012, 2014)
+```
+
+```{r}
+hist_per_yr(nim_df, "nimodipine", 2015, 2016)
+```
+
+```{r}
+hist_per_yr(nim_df, "nimodipine", 2016, 2017)
+```
+
+# Grenoble
+
+This is the Grenoble's file containing treatment doses:
+
+```{r}
+treat_gre_raw <- read_excel(here("data", "original\ files", "PbtO2_french_cohort_2 mins_drugs", "PbtO2_drugs.xlsx"))
+paged_table(treat_gre_raw )
+```
+
+Here are the different drugs which doses are reported:
+
+```{r}
+paged_table(treat_gre_raw %>% distinct(PreparationName))
+```
+
+## Midazolam
+
+This the PbtO2_french_cohort_2 mins_drugs.xlsx file filtered to select only Midazolam.
+
+```{r}
+mid_df_raw <- treat_gre_raw %>% filter(PreparationName == "MIDAZOLAM 50MG/10ML AMP 10ML SOL INJ")
+paged_table(mid_df_raw)
+```
+
+```{r}
+mean_interval_duration <- mid_df_raw %>% mutate(time_diff = difftime(InfusionEndTime, InfusionStartTime, units = "days")) %>%
+  summarise(mean(time_diff, na.rm = TRUE)) %>% pull()
+```
+
+We notice that tupples of InfusionStartTime and InfusionEndTime seems to be repeated several time. Precisely the whole dataset contains `r dim(mid_df_raw)[0]` observations and only `r dim(mid_df_raw %>% distinct(InfusionStartTime, InfusionEndTime))[0]` couples of InfusionStartTime and InfusionEndTime.
+
+No dose per unit of time is given, only a given dose + cumulative dose which are not coherent within themselves. For example: for the patient "e02213a" between 2012-01-20 10:52:00 and 2012-01-24 10:32:00, the manually added given Dose sums up to `r 103.8+41+50.8` which is inferior that the given cumulated dose of `r 1148`.
+
+Moreover, the mean duration between InfusionStartTime and InfusionEndTime is: `r round(mean_interval_duration, 2)`.
+
+```{r}
+mid_df_raw %>% mutate(interval_start_end_time = difftime(InfusionEndTime, InfusionStartTime, units = "days")) %>%
+  ggplot(aes(x=interval_start_end_time)) +
+  stat_ecdf() +
+  xlab("Duration between start and end time in days") +
+  ggtitle("eCDF of interval duration between Start time and End time")
+```
+
+## Norepinephrine
+
+Exploring norepinephrine doses. This the PbtO2_french_cohort_2 mins_drugs.xlsx file filtered to select only norepinephrine.
+
+```{r}
+nad_gre_raw <- treat_gre_raw %>% filter(PreparationName == "NORADRENALINE RENAUD 8MG/4ML SOL INJ")
+nad_mean_interval_duration <- nad_gre_raw %>% mutate(time_diff = difftime(InfusionEndTime, InfusionStartTime, units = "days")) %>%
+  summarise(mean(time_diff, na.rm = TRUE)) %>% pull()
+paged_table(nad_gre_raw)
+```
+
+We notice the same problem here, with no dose per time unit given and a CumulativeDose which has nothing to do with manually additioned GivenDose. Similarly, the mean duration between InfusionEndTime and InfusionStartTime is `r nad_mean_interval_duration`. Such a huge mean interval duration makes absolutely no sense for norepinehrine dosage.
+
+Altogether, treatment dosage from Grenoble are not usable.
+
+# Conclusion
+
+We will have to modularize the adversial network so that it can work with and without treatment dosage.

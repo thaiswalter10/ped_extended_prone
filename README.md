@@ -7,7 +7,9 @@ This github repo contains mock data and the code to simulate the results of the 
 
 https://ccforum.biomedcentral.com/articles/10.1186/s13054-022-04081-2
 
-To use this github:
+To use this github, see the explanatory video here: https://youtu.be/5gBzo-DPR5s
+
+Then follow these steps: 
 - install R and RStudio on your computer (to be done only once)
 - Pull this github repo on your local computer. 
 - open the .Rproj file, this will automatically open RStudio. 

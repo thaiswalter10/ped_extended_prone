@@ -2,10 +2,8 @@
 
 Welcome on the github repository: Pedagogical Extended Prone
 
-This github repo contains mock data and the code to simulate the results of the study: 
-"Extended prone positioning duration for COVID-19-related ARDS: benefits and detriments" which you can find here: 
-
-https://ccforum.biomedcentral.com/articles/10.1186/s13054-022-04081-2
+This github repo contains mock data and the code for the activities of the ESICM course: "Data Science for the Intensive Care" which 
+you can find here: https://academy.esicm.org/enrol/index.php?id=377#intropage-courseoverview
 
 To use this github, see the explanatory video here: https://youtu.be/5gBzo-DPR5s
 

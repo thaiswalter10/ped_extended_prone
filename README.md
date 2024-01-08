@@ -1,4 +1,4 @@
-# ped_extended_prone
+# Pedagogical Extended Prone
 
 Welcome on the github repository: Pedagogical Extended Prone
 
